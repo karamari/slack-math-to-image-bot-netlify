@@ -18,7 +18,7 @@ const successRes = obj => {
     headers: {
       "content-type": "application/json"
     },
-    body: obj,
+    body: JSON.stringify(obj),
   }
 }
 
@@ -28,7 +28,7 @@ const failureRes = (obj, code) => {
     headers: {
       "content-type": "application/json"
     },
-    body: obj,
+    body: JSON.stringify(obj),
   }
 }
 
