@@ -65,6 +65,7 @@ exports.handler = async (event, context) => {
     const svgBuf = Buffer.from(svg, 'utf8')
     gm(svgBuf, 'bla.svg').density(200).toBuffer('PNG', (err, buf) => {
       if (err) {
+        console.error("conversion error")
         console.error(err)
         return failureRes()
       }
@@ -93,10 +94,6 @@ exports.handler = async (event, context) => {
         console.error(err)
         return failureRes(null, 500)
       })
-    }).catch(err => {
-      console.error("conversion error")
-      console.error(err)
-      return failureRes(null, 500)
     })
   } else {
     return failureRes()
