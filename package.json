@@ -1,0 +1,18 @@
+{
+    "name": "node-cloud-function-slack-app-tex-formula-to-image",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "build": "netlify-lambda build src"
+    },
+    "license": "MIT",
+    "dependencies": {
+        "axios": "^0.19.0",
+        "form-data": "^2.5.0",
+        "gm": "^1.23.1",
+        "mathjax-node": "^2.1.1"
+    },
+    "devDependencies": {
+        "netlify-lambda": "^1.5.1"
+    }
+}
