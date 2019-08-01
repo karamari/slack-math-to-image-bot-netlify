@@ -7,7 +7,7 @@ const FormData = require('form-data')
 const appVerifToken = process.env.VERIFY_TOKEN
 const botToken = process.env.BOT_TOKEN
 
-const texRegex = /\$([^$]+)\$/
+const texRegex = /\$([^$]+)\$/s
 const slackUrl = "https://slack.com/api/files.upload"
 
 console.log("cold start")
