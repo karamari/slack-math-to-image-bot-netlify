@@ -33,11 +33,12 @@ const failureRes = (obj, code) => {
 }
 
 exports.handler = async (event, context) => {
-  console.log(event)
   const {body: bodyStr, httpMethod} = event
   const body = JSON.parse(bodyStr)
-
+  console.log(body)
+  
   if (body.type === "url_verification" && httpMethod === "POST") {
+    console.log("Received verification request")
     const { token, challenge } = body
     if (token === appVerifToken && challenge) {
       return successRes({ challenge })
@@ -45,6 +46,7 @@ exports.handler = async (event, context) => {
       return failureRes()
     }
   } else if (body.type === "event_callback" && httpMethod === "POST") {
+    console.log("Received event")
     const { text, user, channel } = body.event
     const matched = texRegex.exec(text)
     if (!matched) {
