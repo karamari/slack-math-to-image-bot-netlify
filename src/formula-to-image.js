@@ -33,7 +33,7 @@ const failureRes = (obj, code) => {
 }
 
 exports.handler = async (event, context) => {
-  const {bodyStr, httpMethod} = event
+  const {body: bodyStr, httpMethod} = event
   console.log({bodyStr, httpMethod})
   const body = JSON.parse(bodyStr)
 
@@ -85,7 +85,7 @@ exports.handler = async (event, context) => {
         } else {
           console.error(response.data)
         }
-        res.sendStatus()
+        return successRes()
       }).catch(err => {
         console.error("upload failed")
         console.error(err)
