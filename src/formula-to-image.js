@@ -33,8 +33,8 @@ const failureRes = (obj, code) => {
 }
 
 exports.handler = async (event, context) => {
+  console.log(event)
   const {body: bodyStr, httpMethod} = event
-  console.log({bodyStr, httpMethod})
   const body = JSON.parse(bodyStr)
 
   if (body.type === "url_verification" && httpMethod === "POST") {
