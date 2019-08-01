@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "build": "netlify-lambda build src"
+        "build": "node build.js"
     },
     "license": "MIT",
     "dependencies": {
@@ -13,6 +13,7 @@
         "mathjax-node": "^2.1.1"
     },
     "devDependencies": {
+        "@netlify/zip-it-and-ship-it": "^0.3.1",
         "netlify-lambda": "^1.5.1"
     }
 }
