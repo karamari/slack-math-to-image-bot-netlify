@@ -12,71 +12,91 @@ const slackUrl = "https://slack.com/api/files.upload"
 
 console.log("cold start")
 
-exports.handler = (req, res) => {
-  const {body, method, query} = req
-  console.log({body, method, query})
+const successRes = obj => {
+  return {
+    statusCode: 200,
+    headers: {
+      "content-type": "application/json"
+    },
+    body: obj,
+  }
+}
 
-  if (body.type === "url_verification" && method === "POST") {
+const failureRes = (obj, code) => {
+  return {
+    statusCode: code || 400,
+    headers: {
+      "content-type": "application/json"
+    },
+    body: obj,
+  }
+}
+
+exports.handler = async (event, context) => {
+  const {bodyStr, httpMethod} = event
+  console.log({bodyStr, httpMethod})
+  const body = JSON.parse(bodyStr)
+
+  if (body.type === "url_verification" && httpMethod === "POST") {
     const { token, challenge } = body
     if (token === appVerifToken && challenge) {
-      res.json({challenge})
+      return successRes({ challenge })
     } else {
-      res.sendStatus(400)
+      return failureRes()
     }
-  } else if (body.type === "event_callback" && method === "POST") {
+  } else if (body.type === "event_callback" && httpMethod === "POST") {
     const { text, user, channel } = body.event
-
     const matched = texRegex.exec(text)
-    console.log(text)
-    if (matched) {
-      const tex = matched[1]
-      mj.typeset({
-        math: tex,
-        format: "TeX", // or "inline-TeX", "MathML"
-        svg: true,      // or svg:true, or html:true
-      }).then(data => {
-        const svg = data.svg
-        const svgBuf = Buffer.from(svg, 'utf8')
-        gm(svgBuf, 'bla.svg').density(200).toBuffer('PNG', (err, buf) => {
-          if (err) {
-            console.error(err)
-            return
-          }
-
-          const fm = new FormData()
-          fm.append("file", buf)
-          fm.append("token", botToken)
-          fm.append("channels", channel)
-          fm.append("filetype", "png")
-          axios({
-            url: slackUrl,
-            method: 'POST',
-            headers: {
-              "Content-type": "multipart/form-data"
-            },
-            data: fm
-          }).then(response => {
-            if (response.data.ok) {
-              console.log("upload success")
-            } else {
-              console.error(response.data)
-            }
-            res.sendStatus(200)
-          }).catch(err => {
-            console.error(err)
-            res.sendStatus(200)
-          })
-        }).catch(err => {
-          console.error("conversion error")
-          console.error(err)
-          res.sendStatus(200)
-        })
-      })
-    } else {
+    if (!matched) {
       console.error("tex formula not included")
-      res.sendStatus(200)
+      return failureRes()
     }
+    const tex = matched[1]
+
+    const data = await mj.typeset({
+      math: tex,
+      format: "TeX", // or "inline-TeX", "MathML"
+      svg: true,      // or svg:true, or html:true
+    })
+
+    const svg = data.svg
+    const svgBuf = Buffer.from(svg, 'utf8')
+    gm(svgBuf, 'bla.svg').density(200).toBuffer('PNG', (err, buf) => {
+      if (err) {
+        console.error(err)
+        return failureRes()
+      }
+
+      const fm = new FormData()
+      fm.append("file", buf)
+      fm.append("token", botToken)
+      fm.append("channels", channel)
+      fm.append("filetype", "png")
+      axios({
+        url: slackUrl,
+        method: 'POST',
+        headers: {
+          "Content-type": "multipart/form-data"
+        },
+        data: fm
+      }).then(response => {
+        if (response.data.ok) {
+          console.log("upload success")
+        } else {
+          console.error(response.data)
+        }
+        res.sendStatus()
+      }).catch(err => {
+        console.error("upload failed")
+        console.error(err)
+        return failureRes(null, 500)
+      })
+    }).catch(err => {
+      console.error("conversion error")
+      console.error(err)
+      return failureRes(null, 500)
+    })
   } else {
-    res.sendStatus(400)
+    return failureRes()
   }
 }
